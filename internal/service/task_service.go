@@ -24,6 +24,10 @@ func (s *TaskService) Create(ctx context.Context, task *models.Tasks) error {
 	return s.Repo.Create(ctx, task)
 }
 
+func (s *TaskService) GetAllByID(ctx context.Context, ID uuid.UUID) ([]models.Tasks, error) {
+	return s.Repo.GetAllByID(ctx, ID)
+}
+
 func (s *TaskService) GetAllByUser(ctx context.Context, userID uuid.UUID) ([]models.Tasks, error) {
 	return s.Repo.GetAllByUser(ctx, userID)
 }
