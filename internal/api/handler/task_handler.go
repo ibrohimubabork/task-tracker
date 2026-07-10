@@ -126,3 +126,69 @@ func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
 		Data:   tasks,
 	})
 }
+
+func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
+	var tasks models.Tasks
+	err := json.NewDecoder(r.Body).Decode(&tasks)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_REQUEST",
+					Message: "invalid json format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	ID := chi.URLParam(r, "id")
+	IDParsed, err := uuid.Parse(ID)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_USER_ID",
+					Message: "invalid UUID format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	userID := chi.URLParam(r, "user_id")
+	userIDParsed, err := uuid.Parse(userID)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_USER_ID",
+					Message: "invalid UUID format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	err = h.Service.Update(r.Context(), IDParsed, userIDParsed, &tasks)
+
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INTERNAL_SERVER_ERROR",
+					Message: "failed to update tasks: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+	response.JSON(w, http.StatusCreated, models.Response[models.Tasks]{
+		Status: "success",
+		Data:   tasks,
+	})
+}
