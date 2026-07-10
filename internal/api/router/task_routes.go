@@ -10,5 +10,7 @@ func TaskRoutes(r chi.Router, h *handler.TaskHandler) {
 		r.Post("/", h.Create)
 		r.Get("/{id}", h.GetAllByID)
 		r.Get("/{user_id}", h.GetAllByUser)
+		r.Put("/{id}/{user_id}", h.Update)
+		r.Delete("/{id}/{user_id}", h.Delete)
 	})
 }
