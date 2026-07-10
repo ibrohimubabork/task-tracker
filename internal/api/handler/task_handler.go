@@ -187,9 +187,9 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	response.JSON(w, http.StatusCreated, models.Response[models.Tasks]{
+	response.JSON(w, http.StatusCreated, models.Response[string]{
 		Status: "success",
-		Data:   tasks,
+		Data:   ID + " is deleted",
 	})
 }
 
