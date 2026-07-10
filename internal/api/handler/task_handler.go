@@ -189,7 +189,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	response.JSON(w, http.StatusCreated, models.Response[string]{
 		Status: "success",
-		Data:   ID + " is deleted",
+		Data:   ID + " is updated",
 	})
 }
 
