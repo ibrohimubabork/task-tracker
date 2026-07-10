@@ -31,3 +31,9 @@ func (s *TaskService) GetAllByID(ctx context.Context, ID uuid.UUID) ([]models.Ta
 func (s *TaskService) GetAllByUser(ctx context.Context, userID uuid.UUID) ([]models.Tasks, error) {
 	return s.Repo.GetAllByUser(ctx, userID)
 }
+
+func (s *TaskService) Update(ctx context.Context, ID uuid.UUID, userID uuid.UUID, task *models.Tasks) error {
+	// Buat future update
+	// task.UserID = authenticatedUserID
+	return s.Repo.Update(ctx, ID, userID, task)
+}
