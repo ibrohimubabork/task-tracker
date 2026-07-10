@@ -65,7 +65,7 @@ func (h *TaskHandler) GetAllByID(w http.ResponseWriter, r *http.Request) {
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
-					Code:    "INVALID_USER_ID",
+					Code:    "INVALID_ID",
 					Message: "invalid UUID format: " + err.Error(),
 				},
 			},
@@ -128,21 +128,6 @@ func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
-	var tasks models.Tasks
-	err := json.NewDecoder(r.Body).Decode(&tasks)
-	if err != nil {
-		response.JSON(w, http.StatusBadRequest, models.Response[any]{
-			Status: "error",
-			Errors: []models.ErrorResponse{
-				{
-					Code:    "INVALID_REQUEST",
-					Message: "invalid json format: " + err.Error(),
-				},
-			},
-		})
-		return
-	}
-
 	ID := chi.URLParam(r, "id")
 	IDParsed, err := uuid.Parse(ID)
 	if err != nil {
@@ -150,7 +135,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
-					Code:    "INVALID_USER_ID",
+					Code:    "INVALID_ID",
 					Message: "invalid UUID format: " + err.Error(),
 				},
 			},
@@ -167,6 +152,21 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 				{
 					Code:    "INVALID_USER_ID",
 					Message: "invalid UUID format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	var tasks models.Tasks
+	err = json.NewDecoder(r.Body).Decode(&tasks)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_REQUEST",
+					Message: "invalid json format: " + err.Error(),
 				},
 			},
 		})
@@ -190,5 +190,56 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, models.Response[models.Tasks]{
 		Status: "success",
 		Data:   tasks,
+	})
+}
+
+func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	ID := chi.URLParam(r, "id")
+	IDParsed, err := uuid.Parse(ID)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_ID",
+					Message: "invalid UUID format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	userID := chi.URLParam(r, "user_id")
+	userIDParsed, err := uuid.Parse(userID)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_USER_ID",
+					Message: "invalid UUID format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	err = h.Service.Delete(r.Context(), IDParsed, userIDParsed)
+
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INTERNAL_SERVER_ERROR",
+					Message: "failed to delete tasks: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+	response.JSON(w, http.StatusCreated, models.Response[string]{
+		Status: "success",
+		Data:   ID + " is deleted",
 	})
 }
