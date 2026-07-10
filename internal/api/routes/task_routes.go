@@ -8,5 +8,6 @@ import (
 func TaskRoutes(r chi.Router, h *handler.TaskHandler) {
 	r.Route("/tasks", func(r chi.Router) {
 		r.Post("/", h.Create)
+		r.Get("/{user_id}", h.GetAllByUser)
 	})
 }
