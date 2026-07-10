@@ -119,7 +119,7 @@ func (r *TaskRepository) Update(ctx context.Context, ID uuid.UUID, userID uuid.U
 
 func (r *TaskRepository) Delete(ctx context.Context, ID uuid.UUID, userID uuid.UUID) error {
 	query := `
-		UPDATE tasks WHERE id = $1 AND user_id = $2
+		DELETE FROM tasks WHERE id = $1 AND user_id = $2
 	`
 
 	result, err := r.DB.ExecContext(
