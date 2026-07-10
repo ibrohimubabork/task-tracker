@@ -4,13 +4,13 @@ import (
 	"database/sql"
 
 	"github.com/ibrohimubarok/task-tracker-api/internal/api/handler"
-	"github.com/ibrohimubarok/task-tracker-api/internal/api/routes"
+	"github.com/ibrohimubarok/task-tracker-api/internal/api/router"
 	"github.com/ibrohimubarok/task-tracker-api/internal/repository"
 	"github.com/ibrohimubarok/task-tracker-api/internal/service"
 )
 
 type App struct {
-	Handlers *routes.Handlers
+	Handlers *router.Handlers
 }
 
 func New(db *sql.DB) *App {
@@ -23,7 +23,7 @@ func New(db *sql.DB) *App {
 	// Handler
 	taskHandler := handler.NewTaskHandler(taskService)
 	return &App{
-		Handlers: &routes.Handlers{
+		Handlers: &router.Handlers{
 			Task: taskHandler,
 		},
 	}
