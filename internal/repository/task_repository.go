@@ -30,6 +30,38 @@ func (r *TaskRepository) Create(ctx context.Context, task *models.Tasks) error {
 	).Scan(&task.CreatedAt, &task.UpdatedAt)
 }
 
+func (r *TaskRepository) GetAllByID(ctx context.Context, ID uuid.UUID) (tasks []models.Tasks, err error) {
+	query := `
+	SELECT id, user_id, title, description, status, created_at, updated_at
+	FROM tasks
+	WHERE id = $1
+	ORDER BY created_at DESC
+	`
+
+	rows, err := r.DB.QueryContext(
+		ctx, query, ID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t models.Tasks
+		if err := rows.Scan(
+			&t.ID, &t.UserID, &t.Title, &t.Description, &t.Status, &t.CreatedAt, &t.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, t)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
 func (r *TaskRepository) GetAllByUser(ctx context.Context, userID uuid.UUID) (tasks []models.Tasks, err error) {
 	query := `
 	SELECT id, user_id, title, description, status, created_at, updated_at
