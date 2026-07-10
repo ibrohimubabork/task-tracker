@@ -1,15 +1,21 @@
-package api
+package routes
 
 import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/ibrohimubarok/task-tracker-api/internal/api/handler"
 	"github.com/ibrohimubarok/task-tracker-api/internal/models"
 	"github.com/ibrohimubarok/task-tracker-api/internal/response"
 )
 
-func Router(r chi.Router) {
+type Handlers struct {
+	Task *handler.TaskHandler
+}
+
+func Route(r chi.Router, h *Handlers) {
 	r.Get("/", Root)
+	TaskRoutes(r, h.Task)
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {
