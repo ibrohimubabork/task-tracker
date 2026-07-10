@@ -3,10 +3,13 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/ibrohimubarok/task-tracker-api/internal/models"
 )
+
+var ErrTaskNotFound = errors.New("task not found")
 
 type TaskRepository struct {
 	DB *sql.DB
@@ -20,9 +23,9 @@ func NewTaskRepository(db *sql.DB) *TaskRepository {
 
 func (r *TaskRepository) Create(ctx context.Context, task *models.Tasks) error {
 	query := `
-	INSERT INTO tasks (id, user_id, title, description, status)
-	VALUES ($1, $2, $3, $4, $5)
-	RETURNING created_at, updated_at
+		INSERT INTO tasks (id, user_id, title, description, status)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING created_at, updated_at
 	`
 
 	return r.DB.QueryRowContext(
@@ -32,10 +35,10 @@ func (r *TaskRepository) Create(ctx context.Context, task *models.Tasks) error {
 
 func (r *TaskRepository) GetAllByID(ctx context.Context, ID uuid.UUID) (tasks []models.Tasks, err error) {
 	query := `
-	SELECT id, user_id, title, description, status, created_at, updated_at
-	FROM tasks
-	WHERE id = $1
-	ORDER BY created_at DESC
+		SELECT id, user_id, title, description, status, created_at, updated_at
+		FROM tasks
+		WHERE id = $1
+		ORDER BY created_at DESC
 	`
 
 	rows, err := r.DB.QueryContext(
@@ -64,10 +67,10 @@ func (r *TaskRepository) GetAllByID(ctx context.Context, ID uuid.UUID) (tasks []
 
 func (r *TaskRepository) GetAllByUser(ctx context.Context, userID uuid.UUID) (tasks []models.Tasks, err error) {
 	query := `
-	SELECT id, user_id, title, description, status, created_at, updated_at
-	FROM tasks
-	WHERE user_id = $1
-	ORDER BY created_at DESC
+		SELECT id, user_id, title, description, status, created_at, updated_at
+		FROM tasks
+		WHERE user_id = $1
+		ORDER BY created_at DESC
 	`
 
 	rows, err := r.DB.QueryContext(
@@ -92,4 +95,24 @@ func (r *TaskRepository) GetAllByUser(ctx context.Context, userID uuid.UUID) (ta
 	}
 
 	return tasks, nil
+}
+
+func (r *TaskRepository) Update(ctx context.Context, ID uuid.UUID, userID uuid.UUID, task *models.Tasks) error {
+	query := `
+		UPDATE tasks
+		SET title = $1, description = $2, status = $3, updated_at = NOW()
+		WHERE id = $4 AND user_id = $5
+		RETURNING updated_at
+	`
+
+	err := r.DB.QueryRowContext(
+		ctx, query, task.Title, task.Description, task.Status, ID, userID,
+	).Scan(&task.UpdatedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrTaskNotFound
+		}
+		return err
+	}
+	return nil
 }
