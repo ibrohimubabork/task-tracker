@@ -1,19 +1,30 @@
 version: '3'
 
+dotenv:
+    - .env
+
 tasks:
-  backend:
-    desc: Jalankan server backend dengan port 3000
-    cmds:
-      - go run ./cmd/server
+    backend:
+        desc: Jalankan server backend dengan port 3000
+        cmds:
+            - go run ./cmd/server
 
-  frontend:
-    dir: ./web
-    desc: Jalankan server frontend dengan port 8000
-    cmds:
-      - python -m http.server 8000
+    frontend:
+        dir: ./web
+        desc: Jalankan server frontend dengan port 8000
+        cmds:
+            - python -m http.server 8000
 
-  dev:
-    desc: Jalankan server backend dan frontend
-    deps:
-      - backend
-      - frontend
+    dev:
+        desc: Jalankan server backend dan frontend
+        deps:
+            - backend
+            - frontend
+    migrate-up:
+        desc: Jalankan semua migrasi
+        cmds:
+            - migrate -path internal/database/migrations -database "$DATABASE_URL" up
+    migrate-down:
+        desc: Jalankan semua migrasi
+        cmds:
+            - migrate -path internal/database/migrations -database "$DATABASE_URL" down
