@@ -116,3 +116,25 @@ func (r *TaskRepository) Update(ctx context.Context, ID uuid.UUID, userID uuid.U
 	}
 	return nil
 }
+
+func (r *TaskRepository) Delete(ctx context.Context, ID uuid.UUID, userID uuid.UUID) error {
+	query := `
+		UPDATE tasks WHERE id = $1 AND user_id = $2
+	`
+
+	result, err := r.DB.ExecContext(
+		ctx, query, ID, userID,
+	)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrTaskNotFound
+	}
+
+	return nil
+}
