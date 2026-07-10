@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/ibrohimubarok/task-tracker-api/internal/api/routes"
+	"github.com/ibrohimubarok/task-tracker-api/internal/api/router"
 	"github.com/ibrohimubarok/task-tracker-api/internal/app"
 	"github.com/ibrohimubarok/task-tracker-api/internal/config"
 	"github.com/ibrohimubarok/task-tracker-api/internal/database"
@@ -29,7 +29,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	routes.Route(r, app.Handlers)
+	router.Route(r, app.Handlers)
 	log.Printf("Server running on port %s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
 		log.Fatal(err)
