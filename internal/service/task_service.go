@@ -37,3 +37,9 @@ func (s *TaskService) Update(ctx context.Context, ID uuid.UUID, userID uuid.UUID
 	// task.UserID = authenticatedUserID
 	return s.Repo.Update(ctx, ID, userID, task)
 }
+
+func (s *TaskService) Delete(ctx context.Context, ID uuid.UUID, userID uuid.UUID) error {
+	// Buat future update
+	// task.UserID = authenticatedUserID
+	return s.Repo.Delete(ctx, ID, userID)
+}
