@@ -30,7 +30,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_REQUEST",
-					Message: err.Error(),
+					Message: "invalid json format: " + err.Error(),
 				},
 			},
 		})
@@ -44,8 +44,8 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
-					Code:    "SERVICE_ERROR",
-					Message: err.Error(),
+					Code:    "INTERNAL_SERVER_ERROR",
+					Message: "failed to create tasks: " + err.Error(),
 				},
 			},
 		})
@@ -57,29 +57,64 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "user_id")
-	id, err := uuid.Parse(userID)
+func (h *TaskHandler) GetAllByID(w http.ResponseWriter, r *http.Request) {
+	ID := chi.URLParam(r, "id")
+	IDParsed, err := uuid.Parse(ID)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, models.Response[any]{
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_USER_ID",
-					Message: "invalid UUID format",
+					Message: "invalid UUID format: " + err.Error(),
 				},
 			},
 		})
 		return
 	}
-	tasks, err := h.Service.GetAllByUser(r.Context(), id)
+	tasks, err := h.Service.GetAllByID(r.Context(), IDParsed)
 	if err != nil {
 		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INTERNAL_SERVER_ERROR",
-					Message: "failed to get tasks",
+					Message: "failed to get tasks: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+
+	response.JSON(w, http.StatusCreated, models.Response[[]models.Tasks]{
+		Status: "success",
+		Data:   tasks,
+	})
+}
+
+func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
+	userID := chi.URLParam(r, "user_id")
+	userIDParsed, err := uuid.Parse(userID)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_USER_ID",
+					Message: "invalid UUID format: " + err.Error(),
+				},
+			},
+		})
+		return
+	}
+	tasks, err := h.Service.GetAllByUser(r.Context(), userIDParsed)
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INTERNAL_SERVER_ERROR",
+					Message: "failed to get tasks: " + err.Error(),
 				},
 			},
 		})
