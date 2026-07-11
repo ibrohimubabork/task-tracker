@@ -1,4 +1,4 @@
-module github.com/ibrohimubarok/task-tracker-api
+module github.com/ibrohimubarok/task-tracker
 
 go 1.25.2
 
@@ -9,4 +9,9 @@ require (
 
 require github.com/joho/godotenv v1.5.1
 
-require github.com/google/uuid v1.6.0
+require (
+	github.com/google/uuid v1.6.0
+	golang.org/x/crypto v0.54.0
+)
+
+require golang.org/x/sys v0.47.0 // indirect
