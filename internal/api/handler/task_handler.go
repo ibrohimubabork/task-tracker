@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/ibrohimubarok/task-tracker-api/internal/models"
-	"github.com/ibrohimubarok/task-tracker-api/internal/response"
-	"github.com/ibrohimubarok/task-tracker-api/internal/service"
+	"github.com/ibrohimubarok/task-tracker/internal/models"
+	"github.com/ibrohimubarok/task-tracker/internal/response"
+	"github.com/ibrohimubarok/task-tracker/internal/service"
 )
 
 type TaskHandler struct {
@@ -23,21 +23,22 @@ func NewTaskHandler(service *service.TaskService) *TaskHandler {
 
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var tasks models.Tasks
-	err := json.NewDecoder(r.Body).Decode(&tasks)
-	if err != nil {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&tasks); err != nil {
 		response.JSON(w, http.StatusBadRequest, models.Response[any]{
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_REQUEST",
-					Message: "invalid json format: " + err.Error(),
+					Message: "invalid JSON format",
 				},
 			},
 		})
 		return
 	}
 
-	err = h.Service.Create(r.Context(), &tasks)
+	err := h.Service.Create(r.Context(), &tasks)
 
 	if err != nil {
 		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
@@ -45,7 +46,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INTERNAL_SERVER_ERROR",
-					Message: "failed to create tasks: " + err.Error(),
+					Message: "failed to create task",
 				},
 			},
 		})
@@ -57,7 +58,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *TaskHandler) GetAllByID(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	ID := chi.URLParam(r, "id")
 	IDParsed, err := uuid.Parse(ID)
 	if err != nil {
@@ -66,20 +67,20 @@ func (h *TaskHandler) GetAllByID(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_ID",
-					Message: "invalid UUID format: " + err.Error(),
+					Message: "invalid UUID format",
 				},
 			},
 		})
 		return
 	}
-	tasks, err := h.Service.GetAllByID(r.Context(), IDParsed)
+	tasks, err := h.Service.GetByID(r.Context(), IDParsed)
 	if err != nil {
 		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INTERNAL_SERVER_ERROR",
-					Message: "failed to get tasks: " + err.Error(),
+					Message: "failed to get task",
 				},
 			},
 		})
@@ -101,7 +102,7 @@ func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_USER_ID",
-					Message: "invalid UUID format: " + err.Error(),
+					Message: "invalid UUID format",
 				},
 			},
 		})
@@ -114,7 +115,7 @@ func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INTERNAL_SERVER_ERROR",
-					Message: "failed to get tasks: " + err.Error(),
+					Message: "failed to get tasks",
 				},
 			},
 		})
@@ -136,7 +137,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_ID",
-					Message: "invalid UUID format: " + err.Error(),
+					Message: "invalid UUID format",
 				},
 			},
 		})
@@ -151,7 +152,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_USER_ID",
-					Message: "invalid UUID format: " + err.Error(),
+					Message: "invalid UUID format",
 				},
 			},
 		})
@@ -159,14 +160,15 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tasks models.Tasks
-	err = json.NewDecoder(r.Body).Decode(&tasks)
-	if err != nil {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&tasks); err != nil {
 		response.JSON(w, http.StatusBadRequest, models.Response[any]{
 			Status: "error",
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_REQUEST",
-					Message: "invalid json format: " + err.Error(),
+					Message: "invalid JSON format",
 				},
 			},
 		})
@@ -181,7 +183,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INTERNAL_SERVER_ERROR",
-					Message: "failed to update tasks: " + err.Error(),
+					Message: "failed to update task",
 				},
 			},
 		})
@@ -202,7 +204,7 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_ID",
-					Message: "invalid UUID format: " + err.Error(),
+					Message: "invalid UUID format",
 				},
 			},
 		})
@@ -217,7 +219,7 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INVALID_USER_ID",
-					Message: "invalid UUID format: " + err.Error(),
+					Message: "invalid UUID format",
 				},
 			},
 		})
@@ -232,7 +234,7 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 			Errors: []models.ErrorResponse{
 				{
 					Code:    "INTERNAL_SERVER_ERROR",
-					Message: "failed to delete tasks: " + err.Error(),
+					Message: "failed to delete task",
 				},
 			},
 		})

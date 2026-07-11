@@ -6,10 +6,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/ibrohimubarok/task-tracker-api/internal/api/router"
-	"github.com/ibrohimubarok/task-tracker-api/internal/app"
-	"github.com/ibrohimubarok/task-tracker-api/internal/config"
-	"github.com/ibrohimubarok/task-tracker-api/internal/database"
+	"github.com/ibrohimubarok/task-tracker/internal/api/router"
+	"github.com/ibrohimubarok/task-tracker/internal/app"
+	"github.com/ibrohimubarok/task-tracker/internal/config"
+	"github.com/ibrohimubarok/task-tracker/internal/database"
 )
 
 func main() {
