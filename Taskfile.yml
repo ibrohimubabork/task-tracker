@@ -28,3 +28,9 @@ tasks:
         desc: Jalankan semua migrasi
         cmds:
             - migrate -path internal/database/migrations -database "$DATABASE_URL" down
+    migrate-force:
+        requires:
+            vars:
+                - VERSION
+        cmds:
+        - migrate -path internal/database/migrations -database "$DATABASE_URL" force {{.VERSION}}
