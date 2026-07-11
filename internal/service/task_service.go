@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ibrohimubarok/task-tracker-api/internal/models"
-	"github.com/ibrohimubarok/task-tracker-api/internal/repository"
+	"github.com/ibrohimubarok/task-tracker/internal/models"
+	"github.com/ibrohimubarok/task-tracker/internal/repository"
 )
 
 type TaskService struct {
@@ -24,8 +24,8 @@ func (s *TaskService) Create(ctx context.Context, task *models.Tasks) error {
 	return s.Repo.Create(ctx, task)
 }
 
-func (s *TaskService) GetAllByID(ctx context.Context, ID uuid.UUID) ([]models.Tasks, error) {
-	return s.Repo.GetAllByID(ctx, ID)
+func (s *TaskService) GetByID(ctx context.Context, ID uuid.UUID) ([]models.Tasks, error) {
+	return s.Repo.GetByID(ctx, ID)
 }
 
 func (s *TaskService) GetAllByUser(ctx context.Context, userID uuid.UUID) ([]models.Tasks, error) {

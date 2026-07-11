@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/ibrohimubarok/task-tracker-api/internal/models"
+	"github.com/ibrohimubarok/task-tracker/internal/models"
 )
 
 var ErrTaskNotFound = errors.New("task not found")
@@ -33,7 +33,7 @@ func (r *TaskRepository) Create(ctx context.Context, task *models.Tasks) error {
 	).Scan(&task.CreatedAt, &task.UpdatedAt)
 }
 
-func (r *TaskRepository) GetAllByID(ctx context.Context, ID uuid.UUID) (tasks []models.Tasks, err error) {
+func (r *TaskRepository) GetByID(ctx context.Context, ID uuid.UUID) (tasks []models.Tasks, err error) {
 	query := `
 		SELECT id, user_id, title, description, status, created_at, updated_at
 		FROM tasks
