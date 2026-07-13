@@ -55,3 +55,40 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Data:   "account has been created",
 	})
 }
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var request models.LoginRequest
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&request); err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_REQUEST",
+					Message: "invalid JSON format",
+				},
+			},
+		})
+		return
+	}
+
+	result, err := h.Service.Login(r.Context(), request)
+
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INTERNAL_SERVER_ERROR",
+					Message: "failed to get user",
+				},
+			},
+		})
+		return
+	}
+	response.JSON(w, http.StatusCreated, models.Response[models.LoginResponse]{
+		Status: "success",
+		Data:   result,
+	})
+}
