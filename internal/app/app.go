@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/ibrohimubarok/task-tracker/internal/api/handler"
 	"github.com/ibrohimubarok/task-tracker/internal/api/router"
 	"github.com/ibrohimubarok/task-tracker/internal/repository"
@@ -10,17 +11,18 @@ import (
 )
 
 type App struct {
-	Handlers *router.Handlers
+	Handlers  *router.Handlers
+	TokenAuth *jwtauth.JWTAuth
 }
 
-func New(db *sql.DB) *App {
+func New(db *sql.DB, tokenAuth *jwtauth.JWTAuth) *App {
 	// Repository
 	taskRepo := repository.NewTaskRepository(db)
 	userRepo := repository.NewUserRepsitory(db)
 
 	// Service
 	taskService := service.NewTaskService(taskRepo)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, tokenAuth)
 
 	// Handler
 	taskHandler := handler.NewTaskHandler(taskService)
