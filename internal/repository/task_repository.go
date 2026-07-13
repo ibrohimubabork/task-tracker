@@ -21,7 +21,7 @@ func NewTaskRepository(db *sql.DB) *TaskRepository {
 	}
 }
 
-func (r *TaskRepository) Create(ctx context.Context, task *models.Tasks) error {
+func (r *TaskRepository) Create(ctx context.Context, userID uuid.UUID, task *models.Tasks) error {
 	query := `
 		INSERT INTO tasks (id, user_id, title, description, status)
 		VALUES ($1, $2, $3, $4, $5)
@@ -29,7 +29,7 @@ func (r *TaskRepository) Create(ctx context.Context, task *models.Tasks) error {
 	`
 
 	return r.DB.QueryRowContext(
-		ctx, query, task.ID, task.UserID, task.Title, task.Description, task.Status,
+		ctx, query, task.ID, userID, task.Title, task.Description, task.Status,
 	).Scan(&task.CreatedAt, &task.UpdatedAt)
 }
 
