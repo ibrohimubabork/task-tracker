@@ -18,10 +18,9 @@ func NewTaskService(repo *repository.TaskRepository) *TaskService {
 	}
 }
 
-func (s *TaskService) Create(ctx context.Context, task *models.Tasks) error {
+func (s *TaskService) Create(ctx context.Context, userID uuid.UUID, task *models.Tasks) error {
 	task.ID = uuid.New()
-
-	return s.Repo.Create(ctx, task)
+	return s.Repo.Create(ctx, userID, task)
 }
 
 func (s *TaskService) GetByID(ctx context.Context, ID uuid.UUID) ([]models.Tasks, error) {
@@ -33,13 +32,9 @@ func (s *TaskService) GetAllByUser(ctx context.Context, userID uuid.UUID) ([]mod
 }
 
 func (s *TaskService) Update(ctx context.Context, ID uuid.UUID, userID uuid.UUID, task *models.Tasks) error {
-	// Buat future update
-	// task.UserID = authenticatedUserID
 	return s.Repo.Update(ctx, ID, userID, task)
 }
 
 func (s *TaskService) Delete(ctx context.Context, ID uuid.UUID, userID uuid.UUID) error {
-	// Buat future update
-	// task.UserID = authenticatedUserID
 	return s.Repo.Delete(ctx, ID, userID)
 }
