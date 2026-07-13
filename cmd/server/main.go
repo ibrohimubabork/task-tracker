@@ -25,11 +25,11 @@ func main() {
 	log.Println("Database connected successfully")
 
 	// Dependency Injection
-	app := app.New(db)
+	app := app.New(db, cfg.TokenAuth)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	router.Route(r, app.Handlers)
+	router.Route(r, app.Handlers, cfg.TokenAuth)
 	log.Printf("Server running on port %s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
 		log.Fatal(err)
