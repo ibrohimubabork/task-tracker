@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
 	"github.com/ibrohimubarok/task-tracker/internal/models"
 	"github.com/ibrohimubarok/task-tracker/internal/response"
@@ -38,8 +39,35 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Service.Create(r.Context(), &tasks)
-
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		response.JSON(w, http.StatusUnauthorized, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "UNAUTHORIZED",
+					Message: "invalid access token",
+				},
+			},
+		})
+		return
+	}
+	userID := claims["user_id"].(string)
+	userIDParsed, err := uuid.Parse(userID)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "INVALID_USER_ID",
+					Message: "invalid UUID format",
+				},
+			},
+		})
+		return
+	}
+	err = h.Service.Create(r.Context(), userIDParsed, &tasks)
+	tasks.UserID = userIDParsed
 	if err != nil {
 		response.JSON(w, http.StatusInternalServerError, models.Response[any]{
 			Status: "error",
@@ -94,7 +122,20 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) GetAllByUser(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "user_id")
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		response.JSON(w, http.StatusUnauthorized, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "UNAUTHORIZED",
+					Message: "invalid access token",
+				},
+			},
+		})
+		return
+	}
+	userID := claims["user_id"].(string)
 	userIDParsed, err := uuid.Parse(userID)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, models.Response[any]{
@@ -144,7 +185,20 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := chi.URLParam(r, "user_id")
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		response.JSON(w, http.StatusUnauthorized, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "UNAUTHORIZED",
+					Message: "invalid access token",
+				},
+			},
+		})
+		return
+	}
+	userID := claims["user_id"].(string)
 	userIDParsed, err := uuid.Parse(userID)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, models.Response[any]{
@@ -211,7 +265,20 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := chi.URLParam(r, "user_id")
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		response.JSON(w, http.StatusUnauthorized, models.Response[any]{
+			Status: "error",
+			Errors: []models.ErrorResponse{
+				{
+					Code:    "UNAUTHORIZED",
+					Message: "invalid access token",
+				},
+			},
+		})
+		return
+	}
+	userID := claims["user_id"].(string)
 	userIDParsed, err := uuid.Parse(userID)
 	if err != nil {
 		response.JSON(w, http.StatusBadRequest, models.Response[any]{
