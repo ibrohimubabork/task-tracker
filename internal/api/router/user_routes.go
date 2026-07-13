@@ -8,5 +8,6 @@ import (
 func UserRoutes(r chi.Router, h *handler.UserHandler) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", h.Register)
+		r.Post("/login", h.Login)
 	})
 }
